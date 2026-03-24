@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>N5 Computer Systems Trainer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d2e;
+    --surface2: #242742;
+    --border: #2e3255;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #43e97b;
+    --accent4: #f7971e;
+    --text: #e8eaf6;
+    --text-muted: #8b8fa8;
+    --correct: #1a3d2e;
+    --correct-border: #43e97b;
+    --wrong: #3d1a1a;
+    --wrong-border: #ff6b6b;
+    --yellow: #ffe082;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--surface);
+    border-bottom: 2px solid var(--accent);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-badge {
+    background: var(--accent);
+    color: white;
+    font-weight: 700;
+    font-size: 0.8rem;
+    padding: 4px 10px;
+    border-radius: 6px;
+    letter-spacing: 0.05em;
+  }
+
+  header h1 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .score-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 0.9rem;
+  }
+
+  .score-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent3); }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  /* ── TOPIC FILTER ── */
+  .topic-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+
+  .topic-btn {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    color: var(--text-muted);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .topic-btn:hover { border-color: var(--accent); color: var(--text); }
+  .topic-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+  /* ── PROGRESS BAR ── */
+  .progress-wrap {
+    background: var(--surface2);
+    border-radius: 4px;
+    height: 6px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #a78bfa);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  /* ── QUESTION CARD ── */
+  .q-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    transition: border-color 0.2s;
+  }
+
+  .q-card.answered-correct { border-color: var(--correct-border); }
+  .q-card.answered-wrong { border-color: var(--wrong-border); }
+
+  .q-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .q-num {
+    background: var(--accent);
+    color: white;
+    font-weight: 700;
+    font-size: 0.75rem;
+    padding: 3px 9px;
+    border-radius: 5px;
+    min-width: 36px;
+    text-align: center;
+  }
+
+  .q-topic {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 3px 10px;
+    border-radius: 12px;
+  }
+
+  .q-marks {
+    margin-left: auto;
+    font-size: 0.82rem;
+    color: var(--yellow);
+    font-weight: 600;
+  }
+
+  .q-year {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .q-body { padding: 20px; }
+
+  .q-context {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+
+  .q-context code, .context-code {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-top: 8px;
+    color: #a5b4fc;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  .q-text {
+    font-size: 0.97rem;
+    line-height: 1.65;
+    margin-bottom: 16px;
+    font-weight: 500;
+  }
+
+  /* ── ANSWER AREA ── */
+  .answer-area {
+    margin-top: 12px;
+  }
+
+  .answer-input {
+    width: 100%;
+    background: var(--bg);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.92rem;
+    padding: 12px 14px;
+    resize: vertical;
+    min-height: 80px;
+    transition: border-color 0.2s;
+    line-height: 1.5;
+  }
+
+  .answer-input:focus { outline: none; border-color: var(--accent); }
+  .answer-input::placeholder { color: var(--text-muted); }
+
+  .input-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    align-items: center;
+  }
+
+  .hint-text {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    flex: 1;
+    font-style: italic;
+  }
+
+  /* Buttons */
+  .btn {
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 9px 18px;
+    border-radius: 8px;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+  }
+  .btn-primary:hover { background: #7c74ff; transform: translateY(-1px); }
+
+  .btn-outline {
+    background: transparent;
+    border: 1.5px solid var(--border);
+    color: var(--text-muted);
+  }
+  .btn-outline:hover { border-color: var(--accent); color: var(--text); }
+
+  .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+
+  /* ── MARK SCHEME ── */
+  .mark-scheme {
+    margin-top: 16px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    display: none;
+  }
+
+  .mark-scheme.visible { display: block; }
+
+  .ms-header {
+    padding: 10px 16px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--yellow);
+  }
+
+  .ms-body {
+    padding: 14px 16px;
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+
+  .ms-point {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 5px 0;
+  }
+
+  .ms-bullet {
+    color: var(--accent3);
+    font-weight: 700;
+    font-size: 1rem;
+    line-height: 1.6;
+    flex-shrink: 0;
+  }
+
+  .ms-note {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: var(--surface2);
+    border-left: 3px solid var(--accent4);
+    border-radius: 0 6px 6px 0;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+
+  .ms-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-top: 8px;
+    color: #a5b4fc;
+    display: block;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  /* ── SELF-MARK ── */
+  .self-mark {
+    display: none;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .self-mark.visible { display: flex; }
+
+  .sm-btn {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .sm-got-it { background: var(--correct); border: 1.5px solid var(--correct-border); color: var(--accent3); }
+  .sm-got-it:hover { background: #1f4d38; }
+  .sm-missed { background: var(--wrong); border: 1.5px solid var(--wrong-border); color: var(--accent2); }
+  .sm-missed:hover { background: #4d1f1f; }
+
+  /* ── RESULT BADGE ── */
+  .result-badge {
+    display: none;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-top: 10px;
+  }
+  .result-badge.correct { background: var(--correct); border: 1px solid var(--correct-border); color: var(--accent3); display: inline-flex; align-items: center; gap: 6px; }
+  .result-badge.wrong { background: var(--wrong); border: 1px solid var(--wrong-border); color: var(--accent2); display: inline-flex; align-items: center; gap: 6px; }
+
+  /* ── SUMMARY CARD ── */
+  .summary-card {
+    background: var(--surface);
+    border: 1.5px solid var(--accent);
+    border-radius: 16px;
+    padding: 28px;
+    text-align: center;
+    display: none;
+  }
+
+  .summary-card.visible { display: block; }
+
+  .summary-score {
+    font-size: 4rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .summary-label { color: var(--text-muted); margin: 8px 0 24px; font-size: 0.95rem; }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .stat-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+
+  .stat-val { font-size: 1.8rem; font-weight: 700; }
+  .stat-lbl { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+  .stat-box.green .stat-val { color: var(--accent3); }
+  .stat-box.red .stat-val { color: var(--accent2); }
+  .stat-box.yellow .stat-val { color: var(--yellow); }
+
+  /* ── NAV BUTTONS ── */
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.5rem;
+  }
+
+  /* ── TABLE STYLE ── */
+  .q-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    margin-top: 8px;
+  }
+  .q-table th {
+    background: var(--surface2);
+    padding: 8px 12px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+  .q-table td {
+    padding: 7px 12px;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .q-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  /* ── HOME SCREEN ── */
+  #home-screen { display: block; }
+  #quiz-screen { display: none; }
+
+  .home-hero {
+    text-align: center;
+    padding: 3rem 2rem 2rem;
+  }
+
+  .home-hero .hero-tag {
+    display: inline-block;
+    background: var(--surface2);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+
+  .home-hero h2 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+
+  .home-hero h2 span { color: var(--accent); }
+
+  .home-hero p {
+    color: var(--text-muted);
+    font-size: 1rem;
+    max-width: 520px;
+    margin: 0 auto 2rem;
+    line-height: 1.7;
+  }
+
+  .mode-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 2rem;
+    text-align: left;
+  }
+
+  .mode-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .mode-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 8px 24px rgba(108,99,255,0.2); }
+
+  .mode-icon { font-size: 2rem; margin-bottom: 10px; }
+  .mode-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
+  .mode-card p { font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; }
+  .mode-card .count { font-size: 0.75rem; color: var(--accent); font-weight: 600; margin-top: 10px; }
+
+  .topic-section { margin-top: 2.5rem; }
+  .topic-section h3 { font-size: 1rem; color: var(--text-muted); margin-bottom: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.78rem; }
+
+  .topic-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .topic-tile {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.88rem;
+    font-weight: 500;
+  }
+
+  .topic-tile:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* mobile responsive */
+  @media (max-width: 600px) {
+    header { padding: 0 1rem; }
+    .container { padding: 1rem; }
+    .home-hero h2 { font-size: 1.6rem; }
+    .summary-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="logo-badge">N5</span>
+    <h1>Computer Systems Trainer</h1>
+  </div>
+  <div class="score-display">
+    <span class="score-dot"></span>
+    <span id="live-score">0 / 0 marks</span>
+  </div>
+</header>
+
+<!-- ══════════ HOME SCREEN ══════════ -->
+<div id="home-screen">
+  <div class="container">
+    <div class="home-hero">
+      <div class="hero-tag">SQA Past Paper Practice</div>
+      <h2>Master <span>Computer Systems</span><br>for N5 Computing</h2>
+      <p>Practise real SQA exam questions from 2023–2025 covering data representation, processor components, graphics, security, translators and more.</p>
+    </div>
+
+    <div class="mode-grid">
+      <div class="mode-card" onclick="startQuiz('all')">
+        <div class="mode-icon">🎯</div>
+        <h3>Full Practice</h3>
+        <p>All Computer Systems questions in random order.</p>
+        <div class="count">20 questions · All years</div>
+      </div>
+      <div class="mode-card" onclick="startQuiz('quick')">
+        <div class="mode-icon">⚡</div>
+        <h3>Quick Quiz</h3>
+        <p>5 random questions for a fast revision session.</p>
+        <div class="count">5 questions · Randomised</div>
+      </div>
+      <div class="mode-card" onclick="startQuiz('2025')">
+        <div class="mode-icon">📋</div>
+        <h3>2025 Paper</h3>
+        <p>Only questions from the most recent past paper.</p>
+        <div class="count">2025 exam questions</div>
+      </div>
+    </div>
+
+    <div class="topic-section">
+      <h3>Practise by topic</h3>
+      <div class="topic-grid">
+        <div class="topic-tile" onclick="startQuiz('data')">🔢 Data Representation</div>
+        <div class="topic-tile" onclick="startQuiz('processor')">⚙️ Processor Components</div>
+        <div class="topic-tile" onclick="startQuiz('graphics')">🖼 Graphics</div>
+        <div class="topic-tile" onclick="startQuiz('security')">🔒 Security & Encryption</div>
+        <div class="topic-tile" onclick="startQuiz('translators')">🔄 Translators</div>
+        <div class="topic-tile" onclick="startQuiz('energy')">💡 Energy & Sustainability</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ QUIZ SCREEN ══════════ -->
+<div id="quiz-screen">
+  <div class="container">
+
+    <div class="progress-label">
+      <span id="prog-label">Question 1 of 10</span>
+      <span id="prog-pct">0%</span>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+
+    <div class="topic-bar" id="topic-bar"></div>
+
+    <div id="questions-container"></div>
+
+    <div class="summary-card" id="summary-card">
+      <div class="summary-score" id="sum-score">—</div>
+      <div class="summary-label" id="sum-label">Session Complete</div>
+      <div class="summary-grid">
+        <div class="stat-box green">
+          <div class="stat-val" id="sum-correct">0</div>
+          <div class="stat-lbl">Got it ✓</div>
+        </div>
+        <div class="stat-box red">
+          <div class="stat-val" id="sum-missed">0</div>
+          <div class="stat-lbl">Missed ✗</div>
+        </div>
+        <div class="stat-box yellow">
+          <div class="stat-val" id="sum-marks">0</div>
+          <div class="stat-lbl">Total marks</div>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="goHome()" style="margin-right:10px">← Back to Menu</button>
+      <button class="btn btn-outline" onclick="restartQuiz()">Try Again</button>
+    </div>
+
+    <div class="nav-row" id="nav-row">
+      <button class="btn btn-outline" onclick="goHome()">← Menu</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline btn-sm" id="btn-skip" onclick="skipQuestion()">Skip</button>
+        <button class="btn btn-primary" id="btn-check" onclick="checkAnswer()">Check Answer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  QUESTION BANK — N5 Computer Systems 2023-2025
+// ═══════════════════════════════════════════════
+const ALL_QUESTIONS = [
+  // ── DATA REPRESENTATION ──
+  {
+    id: 1, year: 2023, topic: 'data', topicLabel: 'Data Representation',
+    marks: 1,
+    context: 'A player enters the answer <strong>SERVER</strong> into a word game.',
+    question: 'State how many bits would be required to store the player\'s answer using extended ASCII code.',
+    hint: 'Extended ASCII uses 8 bits per character. Count the characters in SERVER.',
+    markScheme: [
+      { point: '48 bits', note: 'SERVER has 6 characters × 8 bits each = 48 bits' }
+    ]
+  },
+  {
+    id: 2, year: 2023, topic: 'data', topicLabel: 'Data Representation',
+    marks: 2,
+    context: 'A customer\'s data usage in May is 35.7 GB, stored using floating-point representation as: <strong>0.357 × 10²</strong>',
+    question: 'Identify the mantissa and exponent in the above floating-point representation.',
+    hint: 'The mantissa is the significant digits part; the exponent is the power.',
+    markScheme: [
+      { point: 'Mantissa: 357 (or 0.357)', note: '' },
+      { point: 'Exponent: 2', note: 'One mark each for mantissa and exponent in the correct order.' }
+    ]
+  },
+  {
+    id: 3, year: 2024, topic: 'data', topicLabel: 'Data Representation',
+    marks: 1,
+    context: 'A hotel wants to replace 114 windows.',
+    question: 'Convert the denary number 114 to 8-bit binary.',
+    hint: 'Use the standard denary to binary conversion method: 128, 64, 32, 16, 8, 4, 2, 1',
+    markScheme: [
+      { point: '01110010', note: '64+32+16+2 = 114' }
+    ]
+  },
+  {
+    id: 4, year: 2024, topic: 'data', topicLabel: 'Data Representation',
+    marks: 2,
+    context: 'A program stores a chocolate product. The variable <em>chocolateName</em> stores the product name. The variable <em>numberOfChocolatesInBox</em> stores the quantity.',
+    question: 'State the data types for chocolateName and numberOfChocolatesInBox.',
+    hint: 'Think about what kind of value each variable holds.',
+    markScheme: [
+      { point: 'chocolateName: string', note: '' },
+      { point: 'numberOfChocolatesInBox: integer', note: 'Accept str, int. One mark each.' }
+    ]
+  },
+  {
+    id: 5, year: 2024, topic: 'data', topicLabel: 'Data Representation',
+    marks: 2,
+    context: 'A value is stored using floating-point representation as: <strong>0.18563 × 10⁴</strong>',
+    question: 'Identify the mantissa and exponent in this floating-point representation.',
+    hint: 'The mantissa is the significant digits; the exponent is the power.',
+    markScheme: [
+      { point: 'Mantissa: 18563 (or 0.18563)', note: '' },
+      { point: 'Exponent: 4', note: '' }
+    ]
+  },
+  {
+    id: 6, year: 2024, topic: 'data', topicLabel: 'Data Representation',
+    marks: 1,
+    context: 'A denary number needs to be stored in 8-bit binary.',
+    question: 'Convert the denary number 105 to 8-bit binary.',
+    hint: '128, 64, 32, 16, 8, 4, 2, 1',
+    markScheme: [
+      { point: '01101001', note: '64+32+8+1 = 105' }
+    ]
+  },
+  {
+    id: 7, year: 2025, topic: 'data', topicLabel: 'Data Representation',
+    marks: 1,
+    context: 'A character needs to be stored using extended ASCII.',
+    question: 'Convert the denary number 79 to 8-bit binary.',
+    hint: '128, 64, 32, 16, 8, 4, 2, 1',
+    markScheme: [
+      { point: '01001111', note: '64+8+4+2+1 = 79' }
+    ]
+  },
+  {
+    id: 8, year: 2025, topic: 'data', topicLabel: 'Data Representation',
+    marks: 1,
+    context: 'A font is stored using 7-bit ASCII. There are 8 different styles of the font.',
+    question: 'How many bits would be needed to store 8 different styles?',
+    hint: 'How many bits does it take to represent 8 different values?',
+    markScheme: [
+      { point: '3 bits (since 2³ = 8)', note: 'Accept: 7 × 8 = 56 if the context means 7-bit codes for 8 characters.' }
+    ]
+  },
+  {
+    id: 9, year: 2025, topic: 'data', topicLabel: 'Data Representation',
+    marks: 2,
+    context: 'A value is stored in floating-point representation as: <strong>0.127 × 10²</strong>',
+    question: 'Identify the mantissa and exponent.',
+    hint: '',
+    markScheme: [
+      { point: 'Mantissa: 127 (or 0.127)', note: '' },
+      { point: 'Exponent: 2', note: '' }
+    ]
+  },
+
+  // ── PROCESSOR COMPONENTS ──
+  {
+    id: 10, year: 2023, topic: 'processor', topicLabel: 'Processor Components',
+    marks: 1,
+    context: 'A player enters the word SERVER into a game. The answer is temporarily stored in the processor.',
+    question: 'State the part of the processor used to temporarily store the answer.',
+    hint: 'This is a very fast, small storage area inside the CPU.',
+    markScheme: [
+      { point: 'Register(s)', note: 'This must be stated specifically. Registers hold data being actively processed.' }
+    ]
+  },
+  {
+    id: 11, year: 2023, topic: 'processor', topicLabel: 'Processor Components',
+    marks: 1,
+    context: 'In a curling program, two distances are compared:\n  IF stone_A_distance < stone_B_distance THEN',
+    question: 'State the part of the processor used to compare stone_A_distance to stone_B_distance.',
+    hint: 'Which component performs calculations and comparisons?',
+    markScheme: [
+      { point: 'ALU (Arithmetic Logic Unit)', note: 'The ALU handles all arithmetic and logical comparisons.' }
+    ]
+  },
+  {
+    id: 12, year: 2024, topic: 'processor', topicLabel: 'Processor Components',
+    marks: 2,
+    context: 'A messaging program performs two actions on data:\n  1. It calculates the cost of a message.\n  2. It transfers the cost to the output.',
+    question: 'Identify which part of the processor is responsible for each action:\n• Calculate the cost\n• Transfer the cost to output',
+    hint: 'There are two key components: one for arithmetic/logic, one for control.',
+    markScheme: [
+      { point: 'Calculate → ALU / Arithmetic Logic Unit', note: '' },
+      { point: 'Transfer → CU / Control Unit', note: '' }
+    ]
+  },
+  {
+    id: 13, year: 2025, topic: 'processor', topicLabel: 'Processor Components',
+    marks: 1,
+    context: 'A program calculates the cost of a venue booking.',
+    question: 'State the part of the processor that carries out the calculation.',
+    hint: 'Which part handles arithmetic?',
+    markScheme: [
+      { point: 'ALU (Arithmetic Logic Unit)', note: '' }
+    ]
+  },
+  {
+    id: 14, year: 2025, topic: 'processor', topicLabel: 'Processor Components',
+    marks: 1,
+    context: 'A cinema booking app stores a seat number during processing.',
+    question: 'State the part of the processor used to temporarily store a seat number during processing.',
+    hint: 'Very fast, small storage within the CPU.',
+    markScheme: [
+      { point: 'Register(s)', note: '' }
+    ]
+  },
+
+  // ── GRAPHICS ──
+  {
+    id: 15, year: 2023, topic: 'graphics', topicLabel: 'Graphics',
+    marks: 2,
+    context: 'A company logo is stored as a vector graphic. A polygon is one object used in the logo.',
+    question: 'State two attributes of a polygon object.',
+    hint: 'Think about properties that describe how a shape looks and is positioned.',
+    markScheme: [
+      { point: 'Any two from: x/y co-ordinate, fill colour, line colour, line thickness, fill pattern, number of sides, length of side, rotation, layer, transparency/opacity', note: 'One mark each for any two valid attributes.' }
+    ]
+  },
+  {
+    id: 16, year: 2023, topic: 'graphics', topicLabel: 'Graphics',
+    marks: 2,
+    context: 'A golf app uses a bit-mapped graphic (an image of a golf flag).',
+    question: 'Describe how a bit-mapped graphic is represented in a computer system\'s memory.',
+    hint: 'Think about pixels and how each one is stored.',
+    markScheme: [
+      { point: 'Each pixel…', note: '' },
+      { point: '…is stored as a binary value (bits / 1s and 0s)', note: 'Both points required. Accept "1s and 0s" as binary.' }
+    ]
+  },
+  {
+    id: 17, year: 2024, topic: 'graphics', topicLabel: 'Graphics',
+    marks: 2,
+    context: 'A text message app logo is stored as a vector graphic.',
+    question: 'Name one object that could be used in the logo and state one attribute of that object.',
+    hint: 'Vector objects include ellipse, rectangle, line, text, polygon.',
+    markScheme: [
+      { point: 'Object: ellipse / rectangle / line / polygon (not "oval" or "square")', note: '' },
+      { point: 'Attribute matching the object: x coordinate, y coordinate, line colour, fill colour, radius, line thickness, length of side, etc.', note: 'Second mark awarded even if object is incorrect, as long as attribute matches the given object.' }
+    ]
+  },
+  {
+    id: 18, year: 2025, topic: 'graphics', topicLabel: 'Graphics',
+    marks: 1,
+    context: 'A school logo is stored as a graphic. Each pixel is stored as a binary value.',
+    question: 'State what type of graphic this describes.',
+    hint: 'There are two main types of computer graphics.',
+    markScheme: [
+      { point: 'Bitmap (bit-mapped)', note: 'Not "vector".' }
+    ]
+  },
+  {
+    id: 19, year: 2025, topic: 'graphics', topicLabel: 'Graphics',
+    marks: 2,
+    context: 'A venue booking website logo is stored as a vector graphic. One object used is a polygon.',
+    question: 'Name one object in the logo and state one of its attributes.',
+    hint: 'Vector objects: polygon, ellipse, rectangle, line.',
+    markScheme: [
+      { point: 'Object: polygon / ellipse / line / rectangle', note: 'Do not allow hexagon or line as an object type for this question.' },
+      { point: 'Valid attribute for the named object: x/y coordinate, line colour, fill colour, line thickness, transparency/opacity', note: '' }
+    ]
+  },
+
+  // ── SECURITY ──
+  {
+    id: 20, year: 2023, topic: 'security', topicLabel: 'Security & Encryption',
+    marks: 1,
+    context: 'An email is intercepted by a hacker. The contents appear as:\n  A!e% #e 7y zX$s _£\ninstead of readable text.',
+    question: 'Describe what has been done to the email to avoid it being understood by the hacker.',
+    hint: 'A security technique that scrambles data so only authorised parties can read it.',
+    markScheme: [
+      { point: 'Encryption', note: 'Accept a description of encryption: "the data has been scrambled/encoded so it cannot be read without a key."' }
+    ]
+  },
+  {
+    id: 21, year: 2024, topic: 'security', topicLabel: 'Security & Encryption',
+    marks: 1,
+    context: 'A camping booking app transmits personal customer data over the internet.',
+    question: 'State the method used to keep this data secure during transmission.',
+    hint: 'This technique converts data into an unreadable format.',
+    markScheme: [
+      { point: 'Encryption', note: '' }
+    ]
+  },
+  {
+    id: 22, year: 2025, topic: 'security', topicLabel: 'Security & Encryption',
+    marks: 1,
+    context: 'A gym app transmits members\' personal data over the internet.',
+    question: 'State the method used to protect members\' data during transmission.',
+    hint: '',
+    markScheme: [
+      { point: 'Encryption', note: '' }
+    ]
+  },
+
+  // ── TRANSLATORS ──
+  {
+    id: 23, year: 2023, topic: 'translators', topicLabel: 'Translators',
+    marks: 2,
+    context: `A voting app contains this code:
+Line 22  REPEAT 4 TIMES
+Line 23    < display candidate name and number of votes >
+Line 24  END REPEAT
+
+Before the code is run it must be translated.`,
+    question: 'Complete the table to identify the type of translator for each effect:\n1. Loop translated once and converted into machine code\n2. Loop translated four times as the program is run',
+    hint: 'One translator produces machine code ahead of time; the other translates line-by-line as it runs.',
+    markScheme: [
+      { point: '1. Compiler — translates entire program at once into machine code', note: '' },
+      { point: '2. Interpreter — translates line-by-line each time the program runs', note: '' }
+    ]
+  },
+  {
+    id: 24, year: 2024, topic: 'translators', topicLabel: 'Translators',
+    marks: 1,
+    context: 'A triathlon program is to be tested on a computer using a line-by-line translation method.',
+    question: 'State the type of translator that translates and executes code line-by-line as the program runs.',
+    hint: 'Translates and executes one line at a time.',
+    markScheme: [
+      { point: 'Interpreter', note: '' }
+    ]
+  },
+  {
+    id: 25, year: 2025, topic: 'translators', topicLabel: 'Translators',
+    marks: 1,
+    context: 'A gym app program is to be compiled before distribution.',
+    question: 'What type of translator converts the entire source code into machine code before the program is run?',
+    hint: 'Produces a standalone executable.',
+    markScheme: [
+      { point: 'Compiler', note: '' }
+    ]
+  },
+
+  // ── ENERGY ──
+  {
+    id: 26, year: 2023, topic: 'energy', topicLabel: 'Energy & Sustainability',
+    marks: 2,
+    context: 'A school wants to reduce energy consumption of its computing department. Pupils already put computers into standby mode when not in use.',
+    question: 'Describe two other methods to reduce the energy consumption of the computers.',
+    hint: 'Think about screen settings, power options, or reducing active components.',
+    markScheme: [
+      { point: 'Any two from: reduce screen brightness, power down monitors when not in use, reduce clock speed, reduce refresh rate of screen, remove external devices, reduce running applications', note: 'Do not accept "stand by" or "sleep" as these are already given in the question.' }
+    ]
+  },
+  {
+    id: 27, year: 2024, topic: 'energy', topicLabel: 'Energy & Sustainability',
+    marks: 1,
+    context: 'A mountain biking app is running on a smartphone.',
+    question: 'State one method of reducing the energy consumption of the smartphone while running the app.',
+    hint: 'Think about screen, background apps, or device settings.',
+    markScheme: [
+      { point: 'Any one of: reduce brightness, low power/eco mode/dark mode, close other apps', note: '' }
+    ]
+  },
+  {
+    id: 28, year: 2025, topic: 'energy', topicLabel: 'Energy & Sustainability',
+    marks: 1,
+    context: 'A school purchases new computers.',
+    question: 'State one reason why reducing the energy consumption of a computer is beneficial.',
+    hint: 'Think about cost and environment.',
+    markScheme: [
+      { point: 'Reduce power/electricity/energy consumption (saves money / reduces environmental impact)', note: '' }
+    ]
+  }
+];
+
+// ── STATE ──
+let quizQuestions = [];
+let currentQ = 0;
+let marksEarned = 0;
+let marksTotal = 0;
+let answeredCount = 0;
+let correctCount = 0;
+let missedCount = 0;
+let currentMode = 'all';
+
+// ── SHUFFLE ──
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ── START QUIZ ──
+function startQuiz(mode) {
+  currentMode = mode;
+  let pool;
+
+  if (mode === 'all') {
+    pool = shuffle(ALL_QUESTIONS);
+  } else if (mode === 'quick') {
+    pool = shuffle(ALL_QUESTIONS).slice(0, 5);
+  } else if (mode === '2025') {
+    pool = shuffle(ALL_QUESTIONS.filter(q => q.year === 2025));
+  } else {
+    // topic mode
+    pool = shuffle(ALL_QUESTIONS.filter(q => q.topic === mode));
+  }
+
+  quizQuestions = pool;
+  currentQ = 0;
+  marksEarned = 0;
+  marksTotal = quizQuestions.reduce((s, q) => s + q.marks, 0);
+  answeredCount = 0;
+  correctCount = 0;
+  missedCount = 0;
+
+  document.getElementById('home-screen').style.display = 'none';
+  document.getElementById('quiz-screen').style.display = 'block';
+  document.getElementById('summary-card').classList.remove('visible');
+  document.getElementById('nav-row').style.display = '';
+
+  renderQuestion();
+  updateProgress();
+}
+
+// ── RENDER QUESTION ──
+function renderQuestion() {
+  const q = quizQuestions[currentQ];
+  const container = document.getElementById('questions-container');
+
+  container.innerHTML = `
+    <div class="q-card" id="q-card">
+      <div class="q-header">
+        <span class="q-num">Q${currentQ + 1}</span>
+        <span class="q-topic">${q.topicLabel}</span>
+        <span class="q-year">${q.year}</span>
+        <span class="q-marks">${q.marks} mark${q.marks > 1 ? 's' : ''}</span>
+      </div>
+      <div class="q-body">
+        ${q.context ? `<div class="q-context">${q.context.includes('\n') ? q.context.replace(/\n(Line.*)/g, '<code>$1</code>').replace(/\n/g, '<br>') : q.context}</div>` : ''}
+        <div class="q-text">${q.question.replace(/\n/g, '<br>')}</div>
+
+        <div class="answer-area">
+          <textarea class="answer-input" id="answer-input" placeholder="Type your answer here…" rows="3"></textarea>
+          <div class="input-row">
+            <span class="hint-text" id="hint-area">${q.hint ? '💡 ' + q.hint : ''}</span>
+          </div>
+        </div>
+
+        <div class="mark-scheme" id="mark-scheme">
+          <div class="ms-header">
+            📋 Model Answer / Mark Scheme
+          </div>
+          <div class="ms-body">
+            ${q.markScheme.map(m => `
+              <div class="ms-point">
+                <span class="ms-bullet">✓</span>
+                <div>
+                  <strong>${m.point}</strong>
+                  ${m.note ? `<div class="ms-note">📌 ${m.note}</div>` : ''}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="self-mark" id="self-mark">
+          <button class="sm-btn sm-got-it" onclick="markSelf(true)">✓ Got it!</button>
+          <button class="sm-btn sm-missed" onclick="markSelf(false)">✗ Missed it</button>
+        </div>
+
+        <div class="result-badge" id="result-badge"></div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('btn-check').textContent = 'Check Answer';
+  document.getElementById('btn-check').onclick = checkAnswer;
+  document.getElementById('btn-skip').style.display = '';
+}
+
+// ── CHECK ANSWER ──
+function checkAnswer() {
+  const ms = document.getElementById('mark-scheme');
+  ms.classList.add('visible');
+
+  const selfMark = document.getElementById('self-mark');
+  selfMark.classList.add('visible');
+
+  document.getElementById('btn-check').style.display = 'none';
+  document.getElementById('btn-skip').style.display = 'none';
+}
+
+// ── SELF-MARK ──
+function markSelf(got) {
+  const q = quizQuestions[currentQ];
+  const card = document.getElementById('q-card');
+  const badge = document.getElementById('result-badge');
+  const selfMark = document.getElementById('self-mark');
+
+  selfMark.classList.remove('visible');
+
+  answeredCount++;
+
+  if (got) {
+    correctCount++;
+    marksEarned += q.marks;
+    card.classList.add('answered-correct');
+    badge.className = 'result-badge correct';
+    badge.innerHTML = `✓ Correct — ${q.marks} mark${q.marks > 1 ? 's' : ''} earned`;
+  } else {
+    missedCount++;
+    card.classList.add('answered-wrong');
+    badge.className = 'result-badge wrong';
+    badge.innerHTML = `✗ Review the mark scheme above`;
+  }
+
+  updateScoreDisplay();
+
+  // Show next button
+  const navRow = document.getElementById('nav-row');
+  const isLast = currentQ === quizQuestions.length - 1;
+  document.getElementById('btn-check').style.display = '';
+  document.getElementById('btn-check').textContent = isLast ? 'Finish ✓' : 'Next Question →';
+  document.getElementById('btn-check').onclick = isLast ? showSummary : nextQuestion;
+  document.getElementById('btn-skip').style.display = 'none';
+}
+
+// ── SKIP ──
+function skipQuestion() {
+  missedCount++;
+  answeredCount++;
+  updateScoreDisplay();
+
+  const isLast = currentQ === quizQuestions.length - 1;
+  if (isLast) {
+    showSummary();
+  } else {
+    nextQuestion();
+  }
+}
+
+function nextQuestion() {
+  currentQ++;
+  renderQuestion();
+  updateProgress();
+}
+
+// ── PROGRESS ──
+function updateProgress() {
+  const total = quizQuestions.length;
+  const pct = Math.round((currentQ / total) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('prog-label').textContent = `Question ${currentQ + 1} of ${total}`;
+  document.getElementById('prog-pct').textContent = pct + '%';
+}
+
+function updateScoreDisplay() {
+  document.getElementById('live-score').textContent = `${marksEarned} / ${marksTotal} marks`;
+}
+
+// ── SUMMARY ──
+function showSummary() {
+  document.getElementById('questions-container').innerHTML = '';
+  document.getElementById('nav-row').style.display = 'none';
+
+  const pct = marksTotal > 0 ? Math.round((marksEarned / marksTotal) * 100) : 0;
+  document.getElementById('sum-score').textContent = pct + '%';
+  document.getElementById('sum-label').textContent = `${marksEarned} / ${marksTotal} marks`;
+  document.getElementById('sum-correct').textContent = correctCount;
+  document.getElementById('sum-missed').textContent = missedCount;
+  document.getElementById('sum-marks').textContent = marksTotal;
+
+  document.getElementById('summary-card').classList.add('visible');
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('prog-label').textContent = 'Complete!';
+  document.getElementById('prog-pct').textContent = '100%';
+}
+
+// ── GO HOME ──
+function goHome() {
+  document.getElementById('quiz-screen').style.display = 'none';
+  document.getElementById('home-screen').style.display = 'block';
+}
+
+function restartQuiz() {
+  startQuiz(currentMode);
+}
+</script>
+</body>
+</html>
